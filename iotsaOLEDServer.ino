@@ -30,8 +30,10 @@ IotsaOtaMod otaMod(application);    // we want OTA for updating the software (wi
 #include "iotsaOLED.h"
 #define PIN_SDA 5
 #define PIN_SCL 4
+#define OLED_WIDTH 128
+#define OLED_HEIGHT 64
 
-IotsaOLEDMod displayMod(application, PIN_SDA, PIN_SCL);
+IotsaOLEDMod displayMod(application, PIN_SDA, PIN_SCL, OLED_WIDTH, OLED_HEIGHT);
 
 #ifdef WITH_BUTTONS
 //
