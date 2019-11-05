@@ -25,22 +25,16 @@ void IotsaOLEDMod::setup() {
     IFDEBUG IotsaSerial.println("OLED init failed");
     return;
   }
-  display->display();
-  delay(2000);
   display->clearDisplay();
   display->setTextSize(1);
   display->setTextColor(WHITE);
   display->setCursor(0, 0);
+  display->print("iotsaOLED ");
   display->print(iotsaConfig.hostName);
   display->display();
-#if 0
-  lcd.begin(lcd_width, lcd_height);
-  lcd.backlight();
-  lcd.print(iotsaConfig.hostName);
-  delay(200);
-  lcd.noBacklight();
-  lcd.clear();
-#endif
+  delay(500);
+  display->clearDisplay();
+  display->display();
   IFDEBUG IotsaSerial.println(" done");
 }
 
@@ -56,9 +50,7 @@ void IotsaOLEDMod::handler() {
   }
   if( server->hasArg("clear")) {
     if (atoi(server->arg("clear").c_str()) > 0) {
-#if 0
-      lcd.clear();
-#endif
+      display->clearDisplay();
       if (!didPos) x = y = 0;
     }
     any = true;
@@ -93,21 +85,13 @@ void IotsaOLEDMod::handler() {
   }
 
   if (any) {
-#if 0
-      lcd.setCursor(x, y);
-//      IFDEBUG IotsaSerial.print("Show message ");
-//      IFDEBUG IotsaSerial.println(msg);
-      printPercentEscape(msg);
-      if (!didBacklight) 
-         clearTime = millis() + 5000; // 5 seconds is the default display time
-      if (clearTime) {
-        IFDEBUG IotsaSerial.println("backlight");
-        lcd.backlight();
-      } else {
-        IFDEBUG IotsaSerial.println("nobacklight");
-        lcd.noBacklight();
-      }
-#endif
+    if (didPos) {
+      display->setCursor(x, y);
+    }
+    printPercentEscape(msg);
+    display->display();
+    if (!didBacklight) 
+        clearTime = 0; // Default is show forever
   }
   String message = "<html><head><title>OLED Server</title></head><body><h1>LCD Server</h1>";
   message += "<form method='get'>Message: <input name='msg' value=''><br>\n";
@@ -131,34 +115,24 @@ bool IotsaOLEDMod::postHandler(const char *path, const JsonVariant& request, Jso
   JsonObject& reqObj = request.as<JsonObject>();
   if (reqObj.get<bool>("clear")) {
     any = true;
-#if 0
-    lcd.clear();
-#endif
+    display->clearDisplay();
+    display->display();
   }
   if (reqObj.containsKey("x") || reqObj.containsKey("y")) {
     x = reqObj.get<int>("x");
     y = reqObj.get<int>("y");
-#if 0
-    lcd.setCursor(x, y);
-#endif
+    display->setCursor(x, y);
     any = true;
   }
-  int backlight = 5000;
+  int backlight = 0;
   if (reqObj.containsKey("backlight")) {
     backlight = int(reqObj.get<float>("backlight") * 1000);
     any = true;
   }
   if (backlight) {
     clearTime = millis() + backlight;
-    IFDEBUG IotsaSerial.println("backlight");
-#if 0
-    lcd.backlight();
-#endif
   } else {
-    IFDEBUG IotsaSerial.println("nobacklight");
-#if 0
-    lcd.noBacklight();
-#endif
+    clearTime = 0;
   }
   String msg = reqObj.get<String>("msg");
   if (msg != "") {
@@ -172,10 +146,8 @@ bool IotsaOLEDMod::postHandler(const char *path, const JsonVariant& request, Jso
 void IotsaOLEDMod::loop() {
   if (clearTime && millis() > clearTime) {
     clearTime = 0;
-    IFDEBUG IotsaSerial.println("nobacklight");
-#if 0
-    lcd.noBacklight();
-#endif
+    display->clearDisplay();
+    display->display();
   }
 }
 
@@ -191,7 +163,6 @@ void IotsaOLEDMod::serverSetup() {
 
 
 void IotsaOLEDMod::printPercentEscape(String &src) {
-#if 0
     const char *arg = src.c_str();
     while (*arg) {
       char newch;
@@ -209,33 +180,16 @@ void IotsaOLEDMod::printPercentEscape(String &src) {
       } else {
         newch = *arg;
       }
-      lcd.print(newch);
-      x++;
-      if (x >= lcd_width) {
-        x = 0;
-        y++;
-        if (y >= lcd_height) y = 0;
-        lcd.setCursor(x, y);
-      }
+      display->print(newch);
       arg++;
     }
-#endif
 }
 
 void IotsaOLEDMod::printString(String &src) {
-#if 0
   if (src != "") {
     for (size_t i=0; i<src.length(); i++) {
       char newch = src.charAt(i);
-      lcd.print(newch);
-      x++;
-      if (x >= lcd_width) {
-        x = 0;
-        y++;
-        if (y >= lcd_height) y = 0;
-        lcd.setCursor(x, y);
-      }
+      display->print(newch);
     }
   }
-#endif
 }
