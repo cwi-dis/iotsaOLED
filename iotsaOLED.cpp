@@ -51,7 +51,11 @@ void IotsaOLEDMod::handler() {
   if( server->hasArg("clear")) {
     if (atoi(server->arg("clear").c_str()) > 0) {
       display->clearDisplay();
-      if (!didPos) x = y = 0;
+      if (!didPos) {
+        x = 0;
+        y = 0;
+        display->setCursor(0,0);
+      }
     }
     any = true;
   }
@@ -116,6 +120,9 @@ bool IotsaOLEDMod::postHandler(const char *path, const JsonVariant& request, Jso
   if (reqObj.get<bool>("clear")) {
     any = true;
     display->clearDisplay();
+    x = 0;
+    y = 0;
+    display->setCursor(0,0);
     display->display();
   }
   if (reqObj.containsKey("x") || reqObj.containsKey("y")) {
@@ -147,6 +154,9 @@ void IotsaOLEDMod::loop() {
   if (clearTime && millis() > clearTime) {
     clearTime = 0;
     display->clearDisplay();
+    x = 0;
+    y = 0;
+    display->setCursor(0,0);
     display->display();
   }
 }
@@ -163,26 +173,28 @@ void IotsaOLEDMod::serverSetup() {
 
 
 void IotsaOLEDMod::printPercentEscape(String &src) {
-    const char *arg = src.c_str();
-    while (*arg) {
-      char newch;
-      if (*arg == '+') newch = ' ';
-      else if (*arg == '%') {
-        arg++;
-        if (*arg >= '0' && *arg <= '9') newch = (*arg-'0') << 4;
-        if (*arg >= 'a' && *arg <= 'f') newch = (*arg-'a'+10) << 4;
-        if (*arg >= 'A' && *arg <= 'F') newch = (*arg-'A'+10) << 4;
-        arg++;
-        if (*arg == 0) break;
-        if (*arg >= '0' && *arg <= '9') newch |= (*arg-'0');
-        if (*arg >= 'a' && *arg <= 'f') newch |= (*arg-'a'+10);
-        if (*arg >= 'A' && *arg <= 'F') newch |= (*arg-'A'+10);
-      } else {
-        newch = *arg;
-      }
-      display->print(newch);
+  const char *arg = src.c_str();
+  while (*arg) {
+    char newch = 0;
+    if (*arg == '+') newch = ' ';
+    else if (*arg == '%') {
       arg++;
+      if (*arg >= '0' && *arg <= '9') newch = (*arg-'0') << 4;
+      if (*arg >= 'a' && *arg <= 'f') newch = (*arg-'a'+10) << 4;
+      if (*arg >= 'A' && *arg <= 'F') newch = (*arg-'A'+10) << 4;
+      arg++;
+      if (*arg == 0) break;
+      if (*arg >= '0' && *arg <= '9') newch |= (*arg-'0');
+      if (*arg >= 'a' && *arg <= 'f') newch |= (*arg-'a'+10);
+      if (*arg >= 'A' && *arg <= 'F') newch |= (*arg-'A'+10);
+    } else {
+      newch = *arg;
     }
+    display->print(newch);
+    arg++;
+  }
+  x = display->getCursorX();
+  y = display->getCursorY();
 }
 
 void IotsaOLEDMod::printString(String &src) {
@@ -191,5 +203,7 @@ void IotsaOLEDMod::printString(String &src) {
       char newch = src.charAt(i);
       display->print(newch);
     }
+    x = display->getCursorX();
+    y = display->getCursorY();
   }
 }
