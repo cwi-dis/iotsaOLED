@@ -12,13 +12,27 @@
 
 LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
 #endif
+
 unsigned long clearTime;  // time at which to turn off backlight
 
 #ifdef IOTSA_WITH_WEB
 // LCD handlers
 void IotsaOLEDMod::setup() {
-  IFDEBUG IotsaSerial.print("oledSetup");
+  IFDEBUG IotsaSerial.printf("oledSetup %d %d %d %d", pin_sda, pin_scl, width, height);
   Wire.begin(pin_sda, pin_scl);
+  display = new Adafruit_SSD1306(width, height, &Wire, -1);
+  if (!display->begin(SSD1306_SWITCHCAPVCC, 0x3c, false, false)) {
+    IFDEBUG IotsaSerial.println("OLED init failed");
+    return;
+  }
+  display->display();
+  delay(2000);
+  display->clearDisplay();
+  display->setTextSize(1);
+  display->setTextColor(WHITE);
+  display->setCursor(0, 0);
+  display->print(iotsaConfig.hostName);
+  display->display();
 #if 0
   lcd.begin(lcd_width, lcd_height);
   lcd.backlight();
