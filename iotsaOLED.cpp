@@ -116,8 +116,8 @@ String IotsaOLEDMod::info() {
 bool IotsaOLEDMod::postHandler(const char *path, const JsonVariant& request, JsonObject& reply) {
   bool any = false;
   if (!request.is<JsonObject>()) return false;
-  JsonObject& reqObj = request.as<JsonObject>();
-  if (reqObj.get<bool>("clear")) {
+  JsonObject reqObj = request.as<JsonObject>();
+  if (reqObj["clear"]) {
     any = true;
     display->clearDisplay();
     x = 0;
@@ -126,14 +126,14 @@ bool IotsaOLEDMod::postHandler(const char *path, const JsonVariant& request, Jso
     display->display();
   }
   if (reqObj.containsKey("x") || reqObj.containsKey("y")) {
-    x = reqObj.get<int>("x");
-    y = reqObj.get<int>("y");
+    x = reqObj["x"];
+    y = reqObj["y"];
     display->setCursor(x, y);
     any = true;
   }
   int backlight = 0;
   if (reqObj.containsKey("backlight")) {
-    backlight = int(reqObj.get<float>("backlight") * 1000);
+    backlight = int(reqObj["backlight"].as<float>() * 1000);
     any = true;
   }
   if (backlight) {
@@ -141,7 +141,7 @@ bool IotsaOLEDMod::postHandler(const char *path, const JsonVariant& request, Jso
   } else {
     clearTime = 0;
   }
-  String msg = reqObj.get<String>("msg");
+  String msg = reqObj["msg"].as<String>();
   if (msg != "") {
       printString(msg);
       any = true;
