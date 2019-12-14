@@ -24,6 +24,11 @@ IotsaApplication application("OLED Display Server");
 IotsaWifiMod wifiMod(application);  // wifi is always needed
 IotsaOtaMod otaMod(application);    // we want OTA for updating the software (will not work with esp-201)
 
+#include "iotsaBLEServer.h"
+#ifdef IOTSA_WITH_BLE
+IotsaBLEServerMod bleserverMod(application);
+#endif
+
 //
 // LCD section. Removve if you don't want LCD support.
 //

@@ -36,6 +36,16 @@ void IotsaOLEDMod::setup() {
   display->clearDisplay();
   display->display();
   IFDEBUG IotsaSerial.println(" done");
+#ifdef IOTSA_WITH_BLE
+  bleApi.setup(serviceUUID, this);
+  // Explain to clients what the message characteristic looks like
+  static BLE2904 message2904;
+  message2904.setFormat(BLE2904::FORMAT_UTF8);
+  message2904.setUnit(0x2700);
+  static BLE2901 message2901("Message");
+  bleApi.addCharacteristic(messageUUID, BLE_WRITE, &message2901, &message2904);
+#endif
+
 }
 
 void IotsaOLEDMod::handler() {
@@ -149,6 +159,29 @@ bool IotsaOLEDMod::postHandler(const char *path, const JsonVariant& request, Jso
   return any;
 }
 #endif // IOTSA_WITH_API
+
+#ifdef IOTSA_WITH_BLE
+bool IotsaOLEDMod::blePutHandler(UUIDstring charUUID) {
+  if (charUUID == messageUUID) {
+      std::string _message = bleApi.getAsString(messageUUID);
+      String message(_message.c_str());
+      display->clearDisplay();
+      x = 0;
+      y = 0;
+      display->setCursor(0,0);
+      display->display();
+      printString(message);
+      return true;
+  }
+  IotsaSerial.println("OLEDMod: ble: write unknown uuid");
+  return false;
+}
+
+bool IotsaOLEDMod::bleGetHandler(UUIDstring charUUID) {
+  IotsaSerial.println("OLEDMod: ble: read unknown uuid");
+  return false;
+}
+#endif // IOTSA_WITH_BLE
 
 void IotsaOLEDMod::loop() {
   if (clearTime && millis() > clearTime) {

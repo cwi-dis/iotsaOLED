@@ -2,12 +2,14 @@
 #define _IOTSAOLED_H_
 #include "iotsa.h"
 #include "iotsaApi.h"
-
+#ifdef IOTSA_WITH_BLE
+#include "iotsaBLEServer.h"
+#endif
 #include <Wire.h>
 #include "Adafruit_GFX.h"
 #include "Adafruit_SSD1306.h"
 
-class IotsaOLEDMod : IotsaApiMod {
+class IotsaOLEDMod : public IotsaApiMod, public IotsaBLEApiProvider {
 public:
   IotsaOLEDMod(IotsaApplication &_app, int _pin_sda, int _pin_scl, int _width, int _height)
   : IotsaApiMod(_app),
@@ -36,5 +38,13 @@ private:
   int x;
   int y;
   Adafruit_SSD1306 *display;
+#ifdef IOTSA_WITH_BLE
+  IotsaBleApiService bleApi;
+  bool blePutHandler(UUIDstring charUUID);
+  bool bleGetHandler(UUIDstring charUUID);
+  static constexpr UUIDstring serviceUUID = "736980F5-2F5A-4E6C-9509-103271B4AFDE";
+  static constexpr UUIDstring messageUUID = "8ABAD996-486D-4074-8919-D41A5D1E96ED";
+#endif // IOTSA_WITH_BLE
+
 };
 #endif // _IOTSOLED_H_
