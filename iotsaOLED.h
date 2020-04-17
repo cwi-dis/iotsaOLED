@@ -2,9 +2,7 @@
 #define _IOTSAOLED_H_
 #include "iotsa.h"
 #include "iotsaApi.h"
-#ifdef IOTSA_WITH_BLE
 #include "iotsaBLEServer.h"
-#endif
 #include <Wire.h>
 #include "Adafruit_GFX.h"
 #include "Adafruit_SSD1306.h"
