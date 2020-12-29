@@ -54,7 +54,7 @@ jobs:
 
     - name: Install library dependencies
       run: |
-        pio lib -g install "Adafruit GFX"
+        pio lib -g install "Adafruit GFX Library"
         pio lib -g install "Adafruit SSD1306"
         pio lib -g install "https://github.com/cwi-dis/iotsa.git#${{ env.iotsa_ref }}"
 
