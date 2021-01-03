@@ -19,12 +19,12 @@ public:
     y(0),
     display(NULL)
   {}
-  void setup();
-  void serverSetup();
-  void loop();
-  String info();
+  void setup() override;
+  void serverSetup() override;
+  void loop() override;
+  String info() override;
 protected:
-  bool postHandler(const char *path, const JsonVariant& request, JsonObject& reply);
+  bool postHandler(const char *path, const JsonVariant& request, JsonObject& reply) override;
 private:
   void handler();
   void printPercentEscape(String &src);
@@ -38,8 +38,8 @@ private:
   Adafruit_SSD1306 *display;
 #ifdef IOTSA_WITH_BLE
   IotsaBleApiService bleApi;
-  bool blePutHandler(UUIDstring charUUID);
-  bool bleGetHandler(UUIDstring charUUID);
+  bool blePutHandler(UUIDstring charUUID) override;
+  bool bleGetHandler(UUIDstring charUUID) override;
   static constexpr UUIDstring serviceUUID = "736980F5-2F5A-4E6C-9509-103271B4AFDE";
   static constexpr UUIDstring messageUUID = "8ABAD996-486D-4074-8919-D41A5D1E96ED";
 #endif // IOTSA_WITH_BLE
