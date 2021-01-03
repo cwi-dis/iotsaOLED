@@ -77,7 +77,7 @@ jobs:
       run: |
         pio lib -g install "Adafruit GFX Library"
         pio lib -g install "Adafruit SSD1306"
-        pio lib -g install "https://github.com/cwi-dis/iotsa.git#${{ env.iotsa_ref }}"
+        pio lib -g install -f "https://github.com/cwi-dis/iotsa.git#${{ env.iotsa_ref }}"
 
     - name: Run PlatformIO
       run: |
