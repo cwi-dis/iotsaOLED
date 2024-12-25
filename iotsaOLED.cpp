@@ -135,24 +135,22 @@ bool IotsaOLEDMod::postHandler(const char *path, const JsonVariant& request, Jso
     display->setCursor(0,0);
     display->display();
   }
-  if (reqObj.containsKey("x") || reqObj.containsKey("y")) {
-    x = reqObj["x"];
-    y = reqObj["y"];
+  if (getFromRequest<int>(reqObj, "x", x) || getFromRequest<int>(reqObj, "y", y)) {
     display->setCursor(x, y);
     any = true;
   }
   int backlight = 0;
-  if (reqObj.containsKey("backlight")) {
-    backlight = int(reqObj["backlight"].as<float>() * 1000);
+  float blacklight = 5;
+  if (getFromRequest<float>(reqObj, "backlight", backlight)) {
     any = true;
   }
   if (backlight) {
-    clearTime = millis() + backlight;
+    clearTime = millis() + (int)(backlight*1000);
   } else {
     clearTime = 0;
   }
-  String msg = reqObj["msg"].as<String>();
-  if (msg != "") {
+  String msg;
+  if (getFromRequest<const char*>(reqObj, "msg", msg)) {
       printString(msg);
       any = true;
   }
